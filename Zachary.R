@@ -78,7 +78,10 @@ which.max(kar_bw) #Mr. Hi es el nodo más central
 DF_kar <- as_long_data_frame(kar) # Convert igraph object to data frame para ver que tiene
 
 
-
+# Edge betweeness: Mide cuántos caminos pasan por un edge; alto edge betweeness son las lineas que conectan cosas cruciales de la red
+kar_edge.bw <- edge_betweenness(kar, directed = FALSE)
+E(kar)$edge_betweenness <- kar_edge.bw
+which.max(kar_edge.bw)
 
 
 # ----- Meassuring network structure --------
@@ -119,22 +122,26 @@ pal <- brewer.pal(length(unique(V(kar)$Faction)), "Set3")
 
 plot(kar,edge.color = "black", vertex.label.cex = 0.5,
      vertex.color = pal[as.numeric(as.factor(vertex_attr(kar, "Faction")))],
-     vertex.size = sqrt(kar_deg)/3, edge.width = sqrt(E(kar)$weight/800),
+     vertex.size = sqrt(kar_deg), edge.width = sqrt(E(kar)$weight),
      layout = layout.fruchterman.reingold) 
 
 # Plotting a network with the eigenvector centrality
 set.seed(1001)
 plot(kar,edge.color = 'black', vertex.label.cex  = 0.5,
      vertex.color = pal[as.numeric(as.factor(vertex_attr(kar, "Faction")))],
-     vertex.size = sqrt(kar_eig)*10, edge.width = sqrt(E(Stucont)$weight/800),
+     vertex.size = sqrt(kar_eig), edge.width = sqrt(E(kar)$weight),
      layout = layout.fruchterman.reingold)
 
 # Plotting a network with the betweenness centrality
 set.seed(1001)
 plot(kar, edge.color = 'black', vertex.lablel.cex = 0.5,
      vertex.color = pal[as.numeric(as.factor(vertex_attr(kar, "Faction")))],
-     vertex.size = sqrt(kar_bw)/3, edge.width = sqrt(E(kar)$weight/800),
+     vertex.size = sqrt(kar_bw), edge.width = sqrt(E(kar)$weight),
      layout = layout.fruchterman.reingold)
+
+
+
+
 
 
 #------ COMMUNITY DETECTION -------
@@ -144,16 +151,20 @@ lc.kar <- cluster_louvain(kar)
 communities(lc.kar) 
 
 set.seed(1001) 
-plot(lc.kar, 
-     kar, 
-     edge.color = 'black',
-     vertex.label.cex = 0.5,
-     vertex.color = pal[as.numeric(as.factor(vertex_attr(kar, "Faction")))],
-     vertex.size = sqrt(kar_bw)/3, edge.width = sqrt(E(kar)$weight/800),
+plot(lc.kar,
+     kar,
+     edge.color = "black",
+     vertex.label.cex = 0.5, 
+     vertex.color = pal[as.numeric(factor(V(kar)$Faction))], 
+     vertex.size = sqrt(V(kar)$degree) * 4, 
+     edge.width = sqrt(E(kar)$edge_betweenness)/4,  
      layout = layout.fruchterman.reingold)
 
-# Colors according to interaction and reduce cluster into 6 rather than 10
+legend("bottomleft", 
+       legend = c("H = Mr. Hi", "A = John A"),  
+       col = c("orange", "darkgreen"),  
+       pch = 16,  
+       cex = .8)  
 
-# set the data set as lc
 
 
